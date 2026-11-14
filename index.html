@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ranger Knight</title>
+  <meta name="description" content="A small medieval rock-paper-scissors battler: Shield, Sword, Battlecry.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ WELCOME ============ -->
+    <section id="screen-menu" class="screen" aria-labelledby="title">
+      <div class="card menu-card">
+        <h1 id="title" class="game-title">Ranger Knight</h1>
+        <p class="tagline">Shield. Sword. Battlecry.<br>Read your foe and choose the counter.</p>
+        <canvas id="menu-art" class="pixel portrait" width="192" height="108" aria-hidden="true"></canvas>
+        <div class="menu-buttons">
+          <button id="btn-start" class="btn btn-primary btn-big">Start Game</button>
+          <button id="btn-howto" class="btn btn-big">How to Play</button>
+        </div>
+        <div class="settings" data-settings>
+          <h2 class="settings-title">Sound &amp; Motion</h2>
+          <label class="toggle"><input type="checkbox" data-setting="muted"> <span>Mute</span></label>
+          <label class="slider"><span>Volume</span> <input type="range" min="0" max="100" step="5" data-setting="volume" aria-label="Volume"></label>
+          <label class="toggle"><input type="checkbox" data-setting="reducedMotion"> <span>Reduced motion</span></label>
+        </div>
+        <p class="small-print">Keys: <kbd>1</kbd> Shield · <kbd>2</kbd> Sword · <kbd>3</kbd> Battlecry · <kbd>Esc</kbd> Pause</p>
+      </div>
+    </section>
+
+    <!-- ============ TUTORIAL ============ -->
+    <section id="screen-tutorial" class="screen" aria-labelledby="howto-title" hidden>
+      <div class="card tutorial-card">
+        <h2 id="howto-title" class="panel-title">How to Play</h2>
+        <p>Each round, the enemy commits to a move, then a <strong>5-second countdown</strong> starts. Pick your answer before it reaches zero. You can change your mind until then. <strong>Shield is chosen for you</strong> if you don't pick.</p>
+        <ul class="counter-list">
+          <li><span class="chip chip-G" data-icon="G"></span> <strong>Shield</strong> (green) <em>blocks</em> <span class="chip chip-R" data-icon="R"></span> <strong>red attacks</strong>.<br><small>Example: Shield beats the Orc's Cleave.</small></li>
+          <li><span class="chip chip-R" data-icon="R"></span> <strong>Sword</strong> (red) <em>cuts through</em> <span class="chip chip-Y" data-icon="Y"></span> <strong>yellow shouts</strong>.<br><small>Example: Sword beats the Dragon's Roar.</small></li>
+          <li><span class="chip chip-Y" data-icon="Y"></span> <strong>Battlecry</strong> (yellow) <em>shatters</em> <span class="chip chip-G" data-icon="G"></span> <strong>green guards</strong>.<br><small>Example: Battlecry beats the Skeleton's Bone Shield.</small></li>
+          <li><span class="chip chip-draw">=</span> <strong>Same colour</strong> is a draw. Nobody is hurt.</li>
+        </ul>
+        <p>Winning a round removes one enemy heart. Losing one costs you a heart. You have <strong>5 hearts</strong>, and they are refilled before every encounter.</p>
+        <p>Enemies repeat <strong>patterns</strong>. Easy foes show their next move. Medium foes reveal it in the last 2 seconds. Hard foes only show a <strong>pose</strong> and a small coloured glint. Learn the poses, and use the <em>Last enemy moves</em> list to spot the rhythm.</p>
+        <p class="small-print">Controls: click or tap the ability buttons, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. Press <kbd>Esc</kbd> or <kbd>P</kbd> to pause.</p>
+        <div class="row-buttons">
+          <button id="btn-tutorial-back" class="btn">Back</button>
+          <button id="btn-tutorial-start" class="btn btn-primary">Start Game</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BATTLE ============ -->
+    <section id="screen-battle" class="screen" aria-label="Battle" hidden>
+      <header class="hud">
+        <div class="hud-row">
+          <div class="hud-title">
+            <span id="hud-encounter" class="hud-encounter">Encounter 1 / 11</span>
+            <span id="hud-enemy-name" class="hud-enemy">Orc Recruit</span>
+            <span id="hud-difficulty" class="badge">Easy</span>
+          </div>
+          <button id="btn-pause" class="btn btn-small" aria-label="Pause game"><span aria-hidden="true">❚❚</span> Pause</button>
+        </div>
+        <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" aria-label="Enemies defeated">
+          <div class="progress-fill" id="progress-fill"></div>
+          <span class="progress-label" id="progress-label">0 / 11 defeated</span>
+        </div>
+        <div class="hearts-row">
+          <div class="hearts-group"><span class="hearts-name">Knight</span><div id="player-hearts" class="hearts" role="img"></div></div>
+          <div class="hearts-group right"><span class="hearts-name" id="enemy-hearts-name">Enemy</span><div id="enemy-hearts" class="hearts" role="img"></div></div>
+        </div>
+      </header>
+
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <canvas id="battle-canvas" class="pixel" width="384" height="216" aria-hidden="true"></canvas>
+          <div class="countdown" id="countdown" hidden>
+            <div class="count-num" id="count-num" aria-hidden="true">5</div>
+            <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+          </div>
+          <div class="hint" id="hint" hidden></div>
+          <div class="pose-tip" id="pose-tip" hidden></div>
+          <div class="result" id="result" hidden role="status" aria-live="polite"></div>
+          <div class="banner" id="banner" hidden></div>
+        </div>
+      </div>
+
+      <div class="history" aria-label="Last enemy moves">
+        <span class="history-label">Last enemy moves:</span>
+        <ol id="history-list" class="history-list"></ol>
+      </div>
+
+      <div class="abilities" role="group" aria-label="Choose your ability">
+        <button class="ability ability-G" data-move="G" aria-pressed="true">
+          <span class="ability-icon" data-icon="G"></span>
+          <span class="ability-text"><span class="ability-name">Shield</span><span class="ability-sub">Green · key 1</span></span>
+          <span class="ability-check" aria-hidden="true">✔ Selected</span>
+        </button>
+        <button class="ability ability-R" data-move="R" aria-pressed="false">
+          <span class="ability-icon" data-icon="R"></span>
+          <span class="ability-text"><span class="ability-name">Sword</span><span class="ability-sub">Red · key 2</span></span>
+          <span class="ability-check" aria-hidden="true">✔ Selected</span>
+        </button>
+        <button class="ability ability-Y" data-move="Y" aria-pressed="false">
+          <span class="ability-icon" data-icon="Y"></span>
+          <span class="ability-text"><span class="ability-name">Battlecry</span><span class="ability-sub">Yellow · key 3</span></span>
+          <span class="ability-check" aria-hidden="true">✔ Selected</span>
+        </button>
+      </div>
+      <p class="sr-only" id="sr-status" aria-live="polite"></p>
+    </section>
+
+    <!-- ============ FINAL WIN ============ -->
+    <section id="screen-final" class="screen" aria-labelledby="final-title" hidden>
+      <div class="card final-card">
+        <h2 id="final-title" class="game-title">Victory!</h2>
+        <canvas id="final-art" class="pixel portrait" width="192" height="108" aria-hidden="true"></canvas>
+        <p class="tagline">The Ancient Dragon is defeated. All eleven foes have fallen to the Ranger Knight!</p>
+        <p id="final-stats" class="small-print"></p>
+        <div class="row-buttons">
+          <button id="btn-final-again" class="btn btn-primary">Play Again</button>
+          <button id="btn-final-menu" class="btn">Main Menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MODALS (over the battle screen) ============ -->
+    <div id="modal-intro" class="modal" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+      <div class="card modal-card">
+        <p class="eyebrow" id="intro-eyebrow">Encounter 1 / 11</p>
+        <h2 id="intro-title" class="panel-title">Orc Recruit</h2>
+        <p id="intro-meta" class="intro-meta"></p>
+        <p id="intro-blurb"></p>
+        <div id="intro-poses" class="pose-grid"></div>
+        <p id="intro-hint" class="intro-hint"></p>
+        <div class="row-buttons"><button id="btn-fight" class="btn btn-primary btn-big">Fight!</button></div>
+      </div>
+    </div>
+
+    <div id="modal-won" class="modal" role="dialog" aria-modal="true" aria-labelledby="won-title" hidden>
+      <div class="card modal-card center">
+        <h2 id="won-title" class="panel-title">Enemy defeated!</h2>
+        <p id="won-text"></p>
+        <div class="row-buttons"><button id="btn-continue" class="btn btn-primary btn-big">Continue</button></div>
+      </div>
+    </div>
+
+    <div id="modal-lost" class="modal" role="dialog" aria-modal="true" aria-labelledby="lost-title" hidden>
+      <div class="card modal-card center">
+        <h2 id="lost-title" class="panel-title">You were defeated</h2>
+        <p id="lost-text"></p>
+        <div class="row-buttons">
+          <button id="btn-retry" class="btn btn-primary btn-big">Retry Encounter</button>
+          <button id="btn-lost-menu" class="btn btn-big">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-pause" class="modal" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+      <div class="card modal-card center">
+        <h2 id="pause-title" class="panel-title">Paused</h2>
+        <p class="small-print pause-note">The game waits until you resume.</p>
+        <div class="menu-buttons">
+          <button id="btn-resume" class="btn btn-primary btn-big">Resume</button>
+          <button id="btn-pause-retry" class="btn">Retry Encounter</button>
+          <button id="btn-pause-menu" class="btn">Main Menu</button>
+        </div>
+        <div class="settings" data-settings>
+          <label class="toggle"><input type="checkbox" data-setting="muted"> <span>Mute</span></label>
+          <label class="slider"><span>Volume</span> <input type="range" min="0" max="100" step="5" data-setting="volume" aria-label="Volume"></label>
+          <label class="toggle"><input type="checkbox" data-setting="reducedMotion"> <span>Reduced motion</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data + game logic (no DOM access) -->
+  <script src="js/config.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/core/rules.js"></script>
+  <script src="js/core/encounter.js"></script>
+  <script src="js/core/game.js"></script>
+  <!-- Presentation -->
+  <script src="js/view/art.js"></script>
+  <script src="js/view/renderer.js"></script>
+  <script src="js/view/icons.js"></script>
+  <script src="js/view/ui.js"></script>
+  <script src="js/audio/audio.js"></script>
+  <!-- Wiring: input, loop, settings -->
+  <script src="js/main.js"></script>
+</body>
+</html>
