@@ -251,6 +251,7 @@ kbd {
 .banner-phase { background: #2a1416; color: #ffe2b0; box-shadow: inset 0 0 0 3px #a5463a, 0 5px 0 #000a; }
 .banner-phase strong { color: #ffb347; }
 .banner-phase .banner-note { color: #e8c0a0; }
+.banner-alert { font-weight: 800; color: #fff; background: #a5463a; border: 2px solid #ffb347; border-radius: 4px; padding: 1px 10px; }
 .banner-victory strong { color: var(--g-dark); }
 .banner-defeat strong { color: var(--r-dark); }
 .banner .btn { margin-top: 4px; }

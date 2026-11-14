@@ -7,6 +7,8 @@
  *   phases     optional: replaces `pattern` for enemies that change tactics.
  *              Each phase applies while enemy hearts <= maxHearts. List them from
  *              highest maxHearts to lowest. Changing phase resets the sequence.
+ *              On Hard/boss enemies a phase can set `glint: false` to hide the
+ *              small coloured glint, leaving only the preparation pose as the hint.
  *   abilities  display names + pose descriptions for G / R / Y
  *   art        parameters for the placeholder drawings in js/view/art.js
  *   scene      background used by js/view/art.js (meadow, forest, crypt, camp, mountain, lair)
@@ -133,7 +135,7 @@
       blurb: 'Fierce but predictable — until it gets desperate.',
       abilities: {
         G: { name: 'Scale Guard', pose: 'Wraps its wings around itself' },
-        R: { name: 'Claw Strike', pose: 'Rears up with a claw raised' },
+        R: { name: 'Claw Strike', pose: 'Drops its head low, one claw raised high' },
         Y: { name: 'Roar', pose: 'Lifts its head, chest swelling' }
       },
       phases: [
@@ -150,22 +152,24 @@
       blurb: 'The final foe. It changes tactics twice as it weakens.',
       abilities: {
         G: { name: 'Ancient Scales', pose: 'Wraps its vast wings around itself' },
-        R: { name: 'Rending Claws', pose: 'Rears up with a claw raised' },
-        Y: { name: 'Thunder Roar', pose: 'Lifts its head, chest glowing' }
+        R: { name: 'Rending Claws', pose: 'Drops its head low, one claw raised high' },
+        Y: { name: 'Thunder Roar', pose: 'Rears its head high, jaws wide open' }
       },
       phases: [
         { maxHearts: 6, pattern: ['G', 'R', 'Y'], title: 'Phase 1 — The Ancient Wakes' },
         { maxHearts: 4, pattern: ['R', 'R', 'G', 'Y'], title: 'Phase 2 — Molten Fury',
           announce: 'Its scales glow like embers. A new rhythm begins!' },
         { maxHearts: 2, pattern: ['Y', 'G', 'R', 'G'], title: 'Phase 3 — Last Inferno',
-          announce: 'Wings torn and blazing, it fights with everything left!' }
+          announce: 'Wings torn and blazing, it fights with everything left!',
+          glint: false }  // last phase: no coloured glint, read the poses alone
       ],
       attackFx: 'claw',
       art: { type: 'dragon', kind: 'ancient', scale: 1.3, horn: '#f3e7c4',
         phaseLooks: [
           { body: '#8a2f2a', bodyDark: '#5e1c1a', belly: '#d9b06a', wing: '#a5463a', wingDark: '#6a2420', eyes: '#ffd84a', glow: null },
           { body: '#9a3a1e', bodyDark: '#621f12', belly: '#f0b050', wing: '#c0552a', wingDark: '#7a2a14', eyes: '#ff9a2a', glow: '#ff9a2a' },
-          { body: '#4a1a22', bodyDark: '#2a0c12', belly: '#ff7a3a', wing: '#6a2028', wingDark: '#38101a', eyes: '#ff3a2a', glow: '#ff5a1a', torn: true, embers: true }
+          // Phase 3 eyes are white-hot, not a move colour, so they never read as a hint.
+          { body: '#4a1a22', bodyDark: '#2a0c12', belly: '#ff7a3a', wing: '#6a2028', wingDark: '#38101a', eyes: '#fff4e0', glow: '#ff5a1a', torn: true, embers: true }
         ] }
     }
   ];

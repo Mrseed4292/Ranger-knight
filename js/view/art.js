@@ -348,7 +348,7 @@
     var p = { neck: 0, mouth: 0, wingAng: 0, wrap: 0, claw: 0, tail: 0, lean: 0, crouch: 0 };
     switch (stance) {
       case 'G': p.wrap = 1; p.neck = -0.7; p.crouch = 3; p.lean = lerp(0, 0.1, act); break;
-      case 'R': p.claw = 1; p.tail = lerp(0.8, 1, act); p.neck = lerp(-0.15, -0.5, act); p.lean = lerp(-0.2, 0.24, act); break;
+      case 'R': p.claw = 1; p.tail = lerp(0.8, 1, act); p.neck = lerp(-0.75, -0.5, act); p.lean = lerp(-0.1, 0.24, act); break; // head low, claw high
       case 'Y': p.neck = lerp(0.8, 1, act); p.mouth = lerp(0.5, 1, act); p.wingAng = -0.35; p.lean = -0.08; break;
       case 'hit': p.neck = 0.4; p.mouth = 0.5; p.lean = -0.2; p.wingAng = 0.25; break;
       case 'victory': case 'phase': p.neck = 1; p.mouth = 1; p.wingAng = -0.5; p.lean = -0.1; break;
