@@ -179,7 +179,8 @@
   /** Hint for the committed move at the current moment of the countdown. */
   Game.prototype.currentHint = function () {
     if (this.state !== S.COUNTDOWN || !this.round) return null;
-    return Rules.hintFor(this.encounter.def.difficulty, this.round.enemyMove, this.timeLeft, this.cfg);
+    var phase = this.encounter.phases[this.round.phaseIndex];
+    return Rules.hintFor(this.encounter.def.difficulty, this.round.enemyMove, this.timeLeft, this.cfg, phase);
   };
 
   /* ---------- clock ---------- */

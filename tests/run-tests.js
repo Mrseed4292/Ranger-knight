@@ -203,6 +203,21 @@ test('game hint always describes the committed move', function () {
   });
 });
 
+test('a phase with glint: false hides the Hard/boss glint but keeps the pose', function () {
+  var h = Rules.hintFor('boss', 'G', 3, CONFIG, { glint: false });
+  eq([h.move, h.pose, h.aura, h.label], ['G', true, 'none', false]);
+  eq(Rules.hintFor('boss', 'G', 3, CONFIG, { maxHearts: 4 }).aura, 'accent');
+  eq(Rules.hintFor('hard', 'R', 3, CONFIG).aura, 'accent');
+  ok(Rules.hintFor('easy', 'Y', 3, CONFIG, { glint: false }).label, 'never removes Easy labels');
+});
+test('only the Ancient Dragon last phase disables the glint', function () {
+  ENEMIES.forEach(function (e) {
+    var flags = (e.phases || []).map(function (p) { return p.glint !== false; });
+    if (e.id === 'ancient-dragon') eq(flags, [true, true, false]);
+    else ok(flags.every(Boolean), e.id + ' should keep its glint');
+  });
+});
+
 console.log('Game state machine');
 function newGame(i) { var g = new Game(ENEMIES, CONFIG); g.startGame(i || 0); return g; }
 function runUntil(g, pred, dt, max) { for (var n = 0; n < (max || 5000) && !pred(); n++) g.update(dt || 0.05); ok(pred(), 'condition not reached, state=' + g.state); }
@@ -305,6 +320,30 @@ test('phase banner is shown between rounds and the next countdown uses the new p
   }, 0.1);
   eq(seen.map(function (s) { return s.hp + s.move; }), ['6G', '5R', '4R', '3R', '2Y', '1G']);
   eq(seen.map(function (s) { return s.phase; }), [0, 0, 1, 1, 2, 2]);
+});
+
+test('Ancient Dragon: glint in phases 1-2, pose only (no glint, no label) in phase 3', function () {
+  var g = newGame(10); g.startBattle(); var seen = {};
+  runUntil(g, function () {
+    if (g.state === S.COUNTDOWN) {
+      var h = g.currentHint();
+      eq(h.move, g.round.enemyMove, 'hint matches committed move'); ok(h.pose && !h.label);
+      (seen[g.round.phaseIndex] = seen[g.round.phaseIndex] || {})[h.aura] = true;
+      g.select(winVs(g.round.enemyMove));
+    }
+    return g.state === S.FINAL_WIN;
+  }, 0.1);
+  eq(seen, { 0: { accent: true }, 1: { accent: true }, 2: { none: true } });
+});
+test('retrying the boss brings the glint back for phase 1', function () {
+  var g = newGame(10); g.startBattle();
+  runUntil(g, function () {
+    if (g.state === S.COUNTDOWN) g.select(winVs(g.round.enemyMove));
+    return g.state === S.COUNTDOWN && g.round.phaseIndex === 2;
+  }, 0.1);
+  eq(g.currentHint().aura, 'none');
+  g.pause(); ok(g.retry());
+  eq([g.round.phaseIndex, g.currentHint().aura], [0, 'accent']);
 });
 
 console.log('Audio data');

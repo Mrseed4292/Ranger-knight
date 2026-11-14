@@ -108,6 +108,9 @@
       });
       var hint = HINT_TEXT[def.difficulty];
       if (def.phases && def.difficulty !== 'boss') hint += ' Careful: it may change its rhythm when badly wounded.';
+      var noGlint = (def.phases || []).filter(function (p) { return p.glint === false; })[0];
+      if (noGlint) hint += ' When it is down to ' + noGlint.maxHearts + (noGlint.maxHearts === 1 ? ' heart' : ' hearts') +
+        ', even the glint disappears: read its poses alone.';
       $('intro-hint').textContent = hint;
       $('btn-fight').focus({ preventScroll: true });
     } else if (name === 'won') {
@@ -202,7 +205,9 @@
           var ph = r.phaseChange.phase;
           this.el.banner.className = 'banner banner-phase';
           this.el.banner.innerHTML = '<strong>' + esc(ph.title || 'New tactics!') + '</strong><span>' + esc(ph.announce || '') +
-            '</span><span class="banner-note">Its pattern starts over.</span><button class="btn btn-small" data-action="skip-phase">Ready!</button>';
+            '</span><span class="banner-note">Its pattern starts over.</span>' +
+            (ph.glint === false ? '<span class="banner-alert">No more glints. Read its poses!</span>' : '') +
+            '<button class="btn btn-small" data-action="skip-phase">Ready!</button>';
         }
       }
     }
