@@ -58,15 +58,17 @@
    *   pose  — enemy shows the preparation pose for `move`
    *   aura  — 'full' (strong colour glow), 'accent' (small coloured glint) or 'none'
    *   label — show icon + ability name + colour above the enemy
+   * `phase` (optional) is the enemy's current phase entry. On Hard/boss, a
+   * phase with `glint: false` drops the glint, so only the pose remains.
    */
-  function hintFor(difficulty, move, timeLeft, cfg) {
+  function hintFor(difficulty, move, timeLeft, cfg, phase) {
     var hint = { move: move, pose: true, aura: 'none', label: false };
     if (difficulty === 'easy') {
       hint.aura = 'full'; hint.label = true;
     } else if (difficulty === 'medium') {
       if (timeLeft <= cfg.mediumRevealSeconds) { hint.aura = 'full'; hint.label = true; }
     } else {
-      hint.aura = 'accent';
+      hint.aura = phase && phase.glint === false ? 'none' : 'accent';
     }
     return hint;
   }

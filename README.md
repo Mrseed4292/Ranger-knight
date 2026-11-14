@@ -57,7 +57,7 @@ Mute, volume and reduced motion are on the title screen and in the pause menu. T
 
 ## Where to change things
 
-- **Enemies, patterns, enemy health:** `js/data/enemies.js`. `pattern: ['G','R','Y']` repeats forever. For tactic changes, use `phases: [{ maxHearts, pattern, title, announce }, …]`, listed from high to low. A phase applies while the enemy's hearts are `<= maxHearts`. Phase changes are checked between rounds and reset the sequence.
+- **Enemies, patterns, enemy health:** `js/data/enemies.js`. `pattern: ['G','R','Y']` repeats forever. For tactic changes, use `phases: [{ maxHearts, pattern, title, announce }, …]`, listed from high to low. A phase applies while the enemy's hearts are `<= maxHearts`. Phase changes are checked between rounds and reset the sequence. On a Hard or boss enemy, add `glint: false` to a phase to hide the coloured glint so only the poses show. The Ancient Dragon's last phase does this.
 - **Player health:** `playerHearts` in `js/config.js`.
 - **Countdown duration:** `countdownSeconds` in `js/config.js`. It applies to every enemy, the boss included.
 - **Medium reveal window:** `mediumRevealSeconds` in `js/config.js`.
